@@ -1,0 +1,41 @@
+version: 3.9
+
+services:
+  db:
+    image: postgres:15
+    container_name: sc-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sc-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  
+  backend:
+    build: ./backend
+    container_name: sc-backend
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: sc-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  etl:
+    build: ./etl
+    container_name: sc-etl
+    depends_on:
+      - db
+
+volumes:
+  db_data:
