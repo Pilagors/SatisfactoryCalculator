@@ -1,6 +1,8 @@
 import re
+import logging
 
-# All NativeClass suffixes that represent items/resources
+log = logging.getLogger("etl")
+
 ITEM_NATIVE_CLASSES = [
     "FGItemDescriptor'",
     "FGResourceDescriptor'",
@@ -17,8 +19,6 @@ ITEM_NATIVE_CLASSES = [
     "FGBuildingDescriptor'",
 ]
 
-# Pattern extracts ClassName and Amount from ingredient/product strings
-# e.g. ItemClass="...'.../Desc_IronIngot.Desc_IronIngot_C'",Amount=3
 _INGREDIENT_RE = re.compile(
     r"ItemClass=\"[^\"]*'[^.]+\.([^']+)'\".*?Amount=(\d+(?:\.\d+)?)"
 )
@@ -32,7 +32,6 @@ def _parse_ingredient_list(raw: str) -> list[dict]:
 
 
 def _is_production_recipe(produced_in: str) -> bool:
-    """Keep recipes produced in at least one non-BuildGun machine."""
     if not produced_in or produced_in.strip() in ("()", ""):
         return False
     producers = re.findall(r'"([^"]+)"', produced_in)
@@ -42,6 +41,7 @@ def _is_production_recipe(produced_in: str) -> bool:
 def transform(data: list) -> dict:
     items: list[dict] = []
     recipes: list[dict] = []
+    skipped_recipes = 0
 
     for entry in data:
         native = entry.get("NativeClass", "")
@@ -61,6 +61,7 @@ def transform(data: list) -> dict:
                 })
 
     known_item_ids = {item["id"] for item in items}
+    log.info(f"Items extraits : {len(items)} ({sum(1 for i in items if i['is_resource'])} ressources brutes)")
 
     for entry in data:
         native = entry.get("NativeClass", "")
@@ -69,6 +70,7 @@ def transform(data: list) -> dict:
 
         for cls in entry.get("Classes", []):
             if not _is_production_recipe(cls.get("mProducedIn", "")):
+                skipped_recipes += 1
                 continue
 
             ingredients = [
@@ -81,6 +83,7 @@ def transform(data: list) -> dict:
             ]
 
             if not ingredients and not products:
+                skipped_recipes += 1
                 continue
 
             recipes.append({
@@ -91,5 +94,11 @@ def transform(data: list) -> dict:
                 "ingredients": ingredients,
                 "products": products,
             })
+
+    alternates = sum(1 for r in recipes if r["is_alternate"])
+    log.info(
+        f"Recettes extraites : {len(recipes)} "
+        f"({alternates} alternatives, {skipped_recipes} ignorées)"
+    )
 
     return {"items": items, "recipes": recipes}

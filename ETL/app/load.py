@@ -1,7 +1,10 @@
 import os
 import time
+import logging
 import psycopg2
 from psycopg2.extras import execute_batch
+
+log = logging.getLogger("etl")
 
 
 def _get_conn():
@@ -15,17 +18,18 @@ def _get_conn():
 
 
 def _wait_for_schema(retries: int = 20, delay: int = 5) -> psycopg2.extensions.connection:
-    """Retry until the schema created by Flyway is available."""
+    log.info(f"Attente du schéma DB (max {retries * delay}s)...")
     for attempt in range(1, retries + 1):
         try:
             conn = _get_conn()
             with conn.cursor() as cur:
                 cur.execute("SELECT 1 FROM recipes LIMIT 1")
+            log.info("Connexion DB établie, schéma prêt")
             return conn
         except Exception as e:
-            print(f"[{attempt}/{retries}] DB not ready yet: {e}")
+            log.warning(f"Tentative {attempt}/{retries} — DB pas encore prête : {e}")
             time.sleep(delay)
-    raise RuntimeError("Could not connect to DB after multiple retries.")
+    raise RuntimeError("Impossible de se connecter à la DB après plusieurs tentatives.")
 
 
 def load_to_db(data: dict) -> None:
@@ -33,11 +37,17 @@ def load_to_db(data: dict) -> None:
     try:
         with conn:
             with conn.cursor() as cur:
+                log.info(f"Insertion de {len(data['items'])} items...")
                 _load_items(cur, data["items"])
+                log.info(f"Insertion de {len(data['recipes'])} recettes...")
                 _load_recipes(cur, data["recipes"])
-        print(
-            f"Done: {len(data['items'])} items, {len(data['recipes'])} recipes loaded."
+        log.info(
+            f"Chargement terminé : {len(data['items'])} items, "
+            f"{len(data['recipes'])} recettes insérées"
         )
+    except Exception:
+        log.exception("Erreur lors du chargement en DB")
+        raise
     finally:
         conn.close()
 
@@ -59,6 +69,7 @@ def _load_items(cur, items: list) -> None:
         """,
         items,
     )
+    log.info(f"  → {len(items)} items insérés/mis à jour")
 
 
 def _load_recipes(cur, recipes: list) -> None:
@@ -78,6 +89,10 @@ def _load_recipes(cur, recipes: list) -> None:
         """,
         recipe_rows,
     )
+    log.info(f"  → {len(recipe_rows)} recettes insérées/mises à jour")
+
+    total_ingredients = 0
+    total_products = 0
 
     for recipe in recipes:
         if recipe["ingredients"]:
@@ -89,6 +104,8 @@ def _load_recipes(cur, recipes: list) -> None:
                 """,
                 [{"recipe_id": recipe["id"], **i} for i in recipe["ingredients"]],
             )
+            total_ingredients += len(recipe["ingredients"])
+
         if recipe["products"]:
             execute_batch(
                 cur,
@@ -98,3 +115,6 @@ def _load_recipes(cur, recipes: list) -> None:
                 """,
                 [{"recipe_id": recipe["id"], **p} for p in recipe["products"]],
             )
+            total_products += len(recipe["products"])
+
+    log.info(f"  → {total_ingredients} ingrédients, {total_products} produits insérés")
