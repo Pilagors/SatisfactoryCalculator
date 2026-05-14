@@ -1,4 +1,4 @@
-version: 3.9
+version: "3.9"
 
 services:
   db:
@@ -12,28 +12,55 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-  
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d sc-db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   backend:
     build: ./backend
     container_name: sc-backend
-    env_file:
-      - .env
+    environment:
+      DB_HOST: sc-db
+      DB_PORT: 5432
+      DB_NAME: sc-db
+      DB_USER: user
+      DB_PASSWORD: password
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   frontend:
     build: ./frontend
     container_name: sc-frontend
     ports:
-      - "3000:3000"
+      - "3001:3000"
     depends_on:
       - backend
 
   etl:
-    build: ./etl
+    build: ./ETL
     container_name: sc-etl
+    environment:
+      DB_HOST: sc-db
+      DB_PORT: 5432
+      DB_NAME: sc-db
+      DB_USER: user
+      DB_PASSWORD: password
+    depends_on:
+      - backend
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: sc-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
     depends_on:
       - db
 
