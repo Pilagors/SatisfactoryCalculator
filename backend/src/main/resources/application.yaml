@@ -1,3 +1,19 @@
 spring:
   application:
     name: sc
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:sc-db}:${DB_PORT:5432}/${DB_NAME:sc-db}
+    username: ${DB_USER:user}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: ${SERVER_PORT:8000}

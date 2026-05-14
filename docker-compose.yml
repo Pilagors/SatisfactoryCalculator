@@ -16,8 +16,12 @@ services:
   backend:
     build: ./backend
     container_name: sc-backend
-    env_file:
-      - .env
+    environment:
+      DB_HOST: sc-db
+      DB_PORT: 5432
+      DB_NAME: sc-db
+      DB_USER: user
+      DB_PASSWORD: password
     ports:
       - "8000:8000"
     depends_on:
@@ -32,10 +36,16 @@ services:
       - backend
 
   etl:
-    build: ./etl
+    build: ./ETL
     container_name: sc-etl
+    environment:
+      DB_HOST: sc-db
+      DB_PORT: 5432
+      DB_NAME: sc-db
+      DB_USER: user
+      DB_PASSWORD: password
     depends_on:
-      - db
+      - backend
 
   pgadmin:
     image: dpage/pgadmin4
