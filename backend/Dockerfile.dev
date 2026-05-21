@@ -1,0 +1,15 @@
+FROM maven:3.9-eclipse-temurin-17
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y inotify-tools && rm -rf /var/lib/apt/lists/*
+
+COPY pom.xml .
+RUN mvn dependency:go-offline -q
+
+COPY src ./src
+
+COPY entrypoint-dev.sh .
+RUN chmod +x entrypoint-dev.sh
+
+CMD ["./entrypoint-dev.sh"]

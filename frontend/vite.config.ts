@@ -6,9 +6,15 @@ export default defineConfig({
   server: {
     port: 3000,
     host: '0.0.0.0',
+    watch: {
+      usePolling: true,
+    },
+    hmr: {
+      clientPort: 3001,
+    },
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: process.env.API_TARGET ?? 'http://localhost:8000',
         changeOrigin: true,
       },
     },

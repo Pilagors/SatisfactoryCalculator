@@ -19,7 +19,9 @@ services:
       retries: 10
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
     container_name: sc-backend
     environment:
       DB_HOST: sc-db
@@ -29,6 +31,10 @@ services:
       DB_PASSWORD: password
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/pom.xml:/app/pom.xml
+      - maven-cache:/root/.m2
     depends_on:
       db:
         condition: service_healthy
@@ -36,8 +42,13 @@ services:
   frontend:
     build: ./frontend
     container_name: sc-frontend
+    environment:
+      API_TARGET: http://sc-backend:8000
     ports:
       - "3001:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       - backend
 
@@ -66,3 +77,4 @@ services:
 
 volumes:
   db_data:
+  maven-cache:

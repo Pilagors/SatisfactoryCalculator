@@ -9,25 +9,19 @@ const links = [
 
 export default function Sidebar() {
   return (
-    <aside className="w-56 min-h-screen border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4 flex-shrink-0">
-      <nav className="flex flex-col gap-1">
-        {links.map(({ to, label }) => (
+    <ul className="menu bg-base-200 dark:bg-gray-800 min-h-full w-56 p-4 gap-1">
+      <li className="menu-title text-lg font-bold mb-2">Navigation</li>
+      {links.map(({ to, label }) => (
+        <li key={to}>
           <NavLink
-            key={to}
             to={to}
             end
-            className={({ isActive }) =>
-              `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-orange-500 text-white'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-              }`
-            }
+            className={({ isActive }) => isActive ? 'active' : ''}
           >
             {label}
           </NavLink>
-        ))}
-      </nav>
-    </aside>
+        </li>
+      ))}
+    </ul>
   )
 }
