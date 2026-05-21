@@ -21,4 +21,9 @@ public class ItemController {
     public List<Item> getAll() {
         return service.getAllItems();
     }
+
+    @GetMapping("/not-null")
+    public List<Item> getAllNotNull() {
+        return service.getAllItemsNotNull();
+    }
 }

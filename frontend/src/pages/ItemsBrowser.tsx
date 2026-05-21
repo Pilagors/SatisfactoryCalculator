@@ -1,8 +1,8 @@
 import ItemCard from '../components/ui/ItemCard'
-import { useAllItems } from '../hooks/items/allItemsHook'
+import { useAllItemsNotNull } from '../hooks/items/allItemsNotNullHook'
 
 export default function ItemsBrowser() {
-  const { items } = useAllItems()
+  const { items } = useAllItemsNotNull()
 
   return (
     <div>

@@ -17,4 +17,8 @@ public class ItemService {
     public List<Item> getAllItems() {
         return repository.findAll();
     }
+
+    public List<Item> getAllItemsNotNull() {
+        return repository.findAllNotNull();
+    }
 }
