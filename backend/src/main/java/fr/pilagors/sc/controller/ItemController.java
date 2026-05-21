@@ -6,18 +6,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import fr.pilagors.sc.entity.Recipe;
-import fr.pilagors.sc.repository.RecipeRepository;
+import fr.pilagors.sc.entity.Item;
+import fr.pilagors.sc.service.ItemService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/recipes")
+@RequestMapping("/api/items")
 @RequiredArgsConstructor
-public class RecipeController {
-    private final RecipeRepository repo;
+public class ItemController {
+    
+    private final ItemService service;
 
     @GetMapping
-    public List<Recipe> getAll() {
-        return repo.findAll();
+    public List<Item> getAll() {
+        return service.getAllItems();
     }
 }
