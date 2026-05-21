@@ -42,6 +42,8 @@ services:
   frontend:
     build: ./frontend
     container_name: sc-frontend
+    environment:
+      API_TARGET: http://sc-backend:8000
     ports:
       - "3001:3000"
     volumes:
