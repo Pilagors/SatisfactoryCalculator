@@ -5,7 +5,7 @@ interface ItemCardProps {
 
 export default function ItemCard({ name, imageUrl }: ItemCardProps) {
     return (
-        <div className="card bg-base-100 w-96 shadow-md m-8 hover:shadow-xl transition-shadow">
+        <div className="card bg-base-100 shadow-md hover:shadow-xl transition-shadow">
             <figure>
                 <img src={imageUrl} alt={`item-${name}`} />
             </figure>
