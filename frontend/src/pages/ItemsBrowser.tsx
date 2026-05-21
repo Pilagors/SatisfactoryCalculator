@@ -1,10 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ItemCard from '../components/ui/ItemCard'
+import ItemDetailsCard from '../components/ui/ItemDetailsCard'
 import { useAllItemsNotNull } from '../hooks/items/allItemsNotNullHook'
+import { Item } from '../types/item'
 
 export default function ItemsBrowser() {
   const { items } = useAllItemsNotNull()
   const [search, setSearch] = useState('')
+  const [itemSidebar, setItemSidebar] = useState(false)
+  const [itemFocused, setItemFocused] = useState<Item | null>(null)
+  const detailRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (itemFocused) detailRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [itemFocused])
+
+  const onItemClick = (item: Item) => {
+    setItemSidebar(true)
+    setItemFocused(item)
+  }
 
   return (
     <div>
@@ -23,9 +37,16 @@ export default function ItemsBrowser() {
       }
 
       <div className='grid gap-4 grid-cols-[repeat(auto-fill,minmax(384px,1fr))]'>
+        {itemFocused && itemSidebar &&
+          <div ref={detailRef} className='col-span-2 row-span-3'>
+            <ItemDetailsCard item={itemFocused} />
+          </div>
+        }
+
         {items
           .filter(item => item.name.toLowerCase().includes(search.toLowerCase()))
-          .map(item => <ItemCard name={item.name} key={item.id}/> )
+          .filter(item => item.id !== itemFocused?.id)
+          .map(item => <ItemCard name={item.name} key={item.id} onClick={() => onItemClick(item)}/> )
         }
       </div>
     </div>

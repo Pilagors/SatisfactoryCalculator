@@ -1,11 +1,12 @@
 interface ItemCardProps {
     name: string
     imageUrl?: string
+    onClick?: () => void
 }
 
-export default function ItemCard({ name, imageUrl }: ItemCardProps) {
+export default function ItemCard({ name, imageUrl, onClick }: ItemCardProps) {
     return (
-        <div className="card bg-base-100 shadow-md hover:shadow-xl transition-shadow">
+        <div className="card bg-base-100 shadow-md hover:shadow-xl transition-shadow" onClick={onClick}>
             <figure>
                 <img src={imageUrl} alt={`item-${name}`} />
             </figure>
