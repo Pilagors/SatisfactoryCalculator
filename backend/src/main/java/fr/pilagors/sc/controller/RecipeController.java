@@ -7,17 +7,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import fr.pilagors.sc.entity.Recipe;
-import fr.pilagors.sc.repository.RecipeRepository;
+import fr.pilagors.sc.service.RecipeService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/recipes")
 @RequiredArgsConstructor
 public class RecipeController {
-    private final RecipeRepository repo;
+    private final RecipeService service;
 
     @GetMapping
     public List<Recipe> getAll() {
-        return repo.findAll();
+        return service.getAllRecipes();
+    }
+
+    @GetMapping("/{productId}")
+    public List<Recipe> getByProductId(String productId) {
+        return service.getRecipesByProductId(productId);
     }
 }
