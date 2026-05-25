@@ -1,0 +1,13 @@
+{
+    "Servers": {
+        "1": {
+            "Name" : "sc-db",
+            "Group" : "Docker",
+            "Host" : "sc-db",
+            "Port" : 5432,
+            "MaintenanceDB" : "sc-db",
+            "Username" : "user",
+            "SSLMode" : "prefer"
+        }
+    }
+}
