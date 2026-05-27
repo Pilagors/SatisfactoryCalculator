@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import ItemCard from '../components/ui/ItemCard'
-import ItemDetailsCard from '../components/ui/ItemDetailsCard'
+import ItemCard from '../components/ui/Item/ItemCard'
+import ItemDetailsCard from '../components/ui/Item/ItemDetailsCard'
 import { useAllItemsNotNull } from '../hooks/items/allItemsNotNullHook'
 import { Item } from '../types/item'
 

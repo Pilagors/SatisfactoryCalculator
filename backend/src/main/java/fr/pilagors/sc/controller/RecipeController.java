@@ -3,6 +3,7 @@ package fr.pilagors.sc.controller;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,7 +23,7 @@ public class RecipeController {
     }
 
     @GetMapping("/{productId}")
-    public List<Recipe> getByProductId(String productId) {
+    public List<Recipe> getByProductId(@PathVariable String productId) {
         return service.getRecipesByProductId(productId);
     }
 }

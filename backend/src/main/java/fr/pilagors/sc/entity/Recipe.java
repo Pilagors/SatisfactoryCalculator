@@ -2,11 +2,13 @@ package fr.pilagors.sc.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.util.List;
+import lombok.EqualsAndHashCode;
+import java.util.Set;
 
 @Entity
 @Table(name = "recipes")
 @Data
+@EqualsAndHashCode(exclude = {"ingredients", "products"})
 public class Recipe {
     @Id
     private String id;
@@ -16,8 +18,8 @@ public class Recipe {
     private Boolean isAlternate;
 
     @OneToMany(mappedBy = "recipe", fetch = FetchType.LAZY)
-    private List<RecipeIngredient> ingredients;
+    private Set<RecipeIngredient> ingredients;
 
     @OneToMany(mappedBy = "recipe", fetch = FetchType.LAZY)
-    private List<RecipeProduct> products;
+    private Set<RecipeProduct> products;
 }

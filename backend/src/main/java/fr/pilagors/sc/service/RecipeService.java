@@ -11,11 +11,12 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RecipeService {
-    
+
     private final RecipeRepository repository;
 
     public List<Recipe> getAllRecipes() {
-        return repository.findAll();
+        List<String> ids = repository.findDistinctIdsByName();
+        return repository.findByIdsWithDetails(ids);
     }
 
     public List<Recipe> getRecipesByProductId(String productId) {
